@@ -40,8 +40,9 @@ const Signup = () => {
       return;
     }
 
-    if (!formData.email.endsWith('@college.edu') && !formData.email.includes('.edu')) {
-      setError('Please register with a valid college (.edu) email');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) {
+      setError('Please enter a valid email address');
       return;
     }
 
