@@ -3,6 +3,16 @@ import * as authService from '../services/authService';
 
 const AuthContext = createContext(null);
 
+const getApiErrorMessage = (error, fallback) => {
+  if (error.code === 'ECONNABORTED') {
+    return 'The server took too long to respond. Please try again in a moment.';
+  }
+  if (error.message === 'Network Error' || error.code === 'ERR_NETWORK') {
+    return 'Cannot reach the server. Please try again.';
+  }
+  return error.response?.data?.message || fallback;
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -41,9 +51,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || (error.message === 'Network Error'
-          ? 'Cannot reach the server. Please try again.'
-          : 'Login failed. Please verify credentials.')
+        message: getApiErrorMessage(error, 'Login failed. Please verify credentials.')
       };
     }
   };
@@ -59,9 +67,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || (error.message === 'Network Error'
-          ? 'Cannot reach the server. Please try again.'
-          : 'Registration failed.')
+        message: getApiErrorMessage(error, 'Registration failed.')
       };
     }
   };

@@ -9,7 +9,9 @@ export default defineConfig({
       '/api': {
         target: 'https://campusrecover-nbbw.onrender.com',
         changeOrigin: true,
-        secure: false,
+        secure: true,
+        timeout: 120000,
+        proxyTimeout: 120000,
       }
     }
   }

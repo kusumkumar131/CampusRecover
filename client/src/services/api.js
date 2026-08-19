@@ -1,19 +1,30 @@
 import axios from 'axios';
 
+const PRODUCTION_API = 'https://campusrecover-nbbw.onrender.com/api';
+
+// In local Vite, always use same-origin /api so the proxy handles the backend.
+// That avoids browser CORS/Network Error when VITE_API_URL points at Render.
+const apiBaseUrl = import.meta.env.DEV
+  ? '/api'
+  : (import.meta.env.VITE_API_URL || PRODUCTION_API);
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://campusrecover-nbbw.onrender.com/api',
-  timeout: 30000, // 30s timeout to allow free-tier Render server wake-up
-  withCredentials: true, // Crucial for HTTP-only cookies
+  baseURL: apiBaseUrl,
+  timeout: 90000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
-// Request interceptor to attach Bearer token if present
+const PUBLIC_AUTH_PATHS = ['/auth/register', '/auth/login', '/auth/forgot-password', '/auth/reset-password'];
+
 api.interceptors.request.use(
   (config) => {
+    const url = config.url || '';
+    const isPublicAuth = PUBLIC_AUTH_PATHS.some((path) => url.includes(path));
     const token = localStorage.getItem('campus_recover_token');
-    if (token) {
+    if (token && !isPublicAuth) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
