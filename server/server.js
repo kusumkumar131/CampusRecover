@@ -28,20 +28,16 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('combined'));
 }
 
-// CORS configuration (allow client requests with cookies)
+// CORS configuration (allow client requests from Vercel, localhost, or any client origin)
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || origin === process.env.CLIENT_URL || origin.endsWith('.vercel.app') || origin.endsWith('.netlify.app') || origin.startsWith('http://localhost')) {
-        return callback(null, true);
-      }
-      return callback(null, true);
-    },
+    origin: (origin, callback) => callback(null, true),
     credentials: true,
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
   })
 );
+app.options('*', cors());
 
 // Body parsers
 app.use(express.json());
