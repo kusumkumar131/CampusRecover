@@ -91,7 +91,7 @@ exports.register = async (req, res, next) => {
       email: cleanEmail,
       phone: phone ? phone.trim() : '',
       department: department ? department.trim() : '',
-      year: year || undefined,
+      year: year ? String(year) : '',
       passwordHash
     });
 

@@ -34,7 +34,8 @@ const userSchema = new mongoose.Schema(
       trim: true
     },
     year: {
-      type: mongoose.Schema.Types.Mixed
+      type: String,
+      default: ''
     },
     passwordHash: {
       type: String,
