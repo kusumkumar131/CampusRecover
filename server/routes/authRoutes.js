@@ -13,8 +13,8 @@ router.post(
     body('studentId', 'Student ID / Roll Number is required').notEmpty().trim(),
     body('email', 'Please include a valid college email').isEmail().normalizeEmail(),
     body('password', 'Password must be at least 6 characters long').isLength({ min: 6 }),
-    body('confirmPassword').custom((value, { req }) => {
-      if (value !== req.body.password) {
+    body('confirmPassword').optional().custom((value, { req }) => {
+      if (value && value !== req.body.password) {
         throw new Error('Password confirmation does not match password');
       }
       return true;
