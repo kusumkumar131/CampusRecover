@@ -8,12 +8,29 @@ const api = axios.create({
   }
 });
 
-// Response interceptor to handle unauthorized access automatically
+// Request interceptor to attach Bearer token if present
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('campus_recover_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor to handle token storage and unauthorized access
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data?.token) {
+      localStorage.setItem('campus_recover_token', response.data.token);
+    }
+    return response;
+  },
   (error) => {
-    // If unauthorized, we can handle redirects or clear states if needed
     if (error.response && error.response.status === 401) {
+      localStorage.removeItem('campus_recover_token');
       console.warn('Session expired or unauthorized request made.');
     }
     return Promise.reject(error);

@@ -11,11 +11,12 @@ const sendTokenResponse = (user, statusCode, res, message) => {
     { expiresIn: '1d' }
   );
 
+  const isProd = process.env.NODE_ENV === 'production';
   const cookieOptions = {
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
     httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production'
+    sameSite: isProd ? 'none' : 'lax',
+    secure: isProd
   };
 
   // Safe user data to return
