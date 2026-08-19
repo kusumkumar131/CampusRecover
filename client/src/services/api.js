@@ -2,15 +2,13 @@ import axios from 'axios';
 
 const PRODUCTION_API = 'https://campusrecover-nbbw.onrender.com/api';
 
-// In local Vite, always use same-origin /api so the proxy handles the backend.
-// That avoids browser CORS/Network Error when VITE_API_URL points at Render.
-const apiBaseUrl = import.meta.env.DEV
-  ? '/api'
-  : (import.meta.env.VITE_API_URL || PRODUCTION_API);
+// Use same-origin /api so Vercel rewrites and Vite proxy route seamlessly to Render backend.
+// This prevents cross-domain CORS/Network errors in modern browsers.
+const apiBaseUrl = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: apiBaseUrl,
-  timeout: 90000,
+  timeout: 120000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'

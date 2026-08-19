@@ -5,10 +5,10 @@ const AuthContext = createContext(null);
 
 const getApiErrorMessage = (error, fallback) => {
   if (error.code === 'ECONNABORTED') {
-    return 'The server took too long to respond. Please try again in a moment.';
+    return 'Server is starting up (Render free-tier cold start). Please wait 10 seconds and try again.';
   }
   if (error.message === 'Network Error' || error.code === 'ERR_NETWORK') {
-    return 'Cannot reach the server. Please try again.';
+    return error.response?.data?.message || 'Server is starting up or temporarily unreachable. Please wait a moment and try again.';
   }
   return error.response?.data?.message || fallback;
 };
