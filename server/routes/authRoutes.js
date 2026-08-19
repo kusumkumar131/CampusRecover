@@ -11,7 +11,7 @@ router.post(
   [
     body('name', 'Full Name is required').notEmpty().trim(),
     body('studentId', 'Student ID / Roll Number is required').notEmpty().trim(),
-    body('email', 'Please include a valid email address').isEmail().normalizeEmail(),
+    body('email', 'Please include a valid email address').isEmail(),
     body('password', 'Password must be at least 6 characters long').isLength({ min: 6 }),
     body('confirmPassword').optional().custom((value, { req }) => {
       if (value && value !== req.body.password) {
