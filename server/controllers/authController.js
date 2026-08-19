@@ -84,15 +84,16 @@ exports.register = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    const safeYear = parseInt(year, 10) || 1;
+    const parsedYear = parseInt(year, 10);
+    const safeYear = Number.isInteger(parsedYear) && parsedYear >= 1 ? parsedYear : 1;
 
     // Create User
     const user = await User.create({
       name: name.trim(),
       studentId: cleanStudentId,
       email: cleanEmail,
-      phone: phone ? phone.trim() : '',
-      department: department ? department.trim() : '',
+      phone: phone ? String(phone).trim() : '',
+      department: department ? String(department).trim() : '',
       year: safeYear,
       passwordHash
     });
@@ -110,6 +111,12 @@ exports.register = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Email or Student ID is already registered.'
+      });
+    }
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Please check your details and try again.'
       });
     }
     next(error);
@@ -131,10 +138,11 @@ exports.login = async (req, res, next) => {
     }
 
     // Find user by email OR studentId
+    const identifier = emailOrStudentId.trim();
     const user = await User.findOne({
       $or: [
-        { email: emailOrStudentId.toLowerCase() },
-        { studentId: emailOrStudentId }
+        { email: identifier.toLowerCase() },
+        { studentId: identifier }
       ]
     });
 

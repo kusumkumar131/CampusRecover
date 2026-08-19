@@ -10,6 +10,12 @@ export const AuthProvider = ({ children }) => {
   // Check auth persistence on mount
   useEffect(() => {
     const initAuth = async () => {
+      const token = localStorage.getItem('campus_recover_token');
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await authService.getMe();
         if (response.success && response.data.user) {
@@ -25,7 +31,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (emailOrStudentId, password) => {
-    setLoading(true);
     try {
       const response = await authService.login({ emailOrStudentId, password });
       if (response.success && response.data.user) {
@@ -36,15 +41,14 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Login failed. Please verify credentials.'
+        message: error.response?.data?.message || (error.message === 'Network Error'
+          ? 'Cannot reach the server. Please try again.'
+          : 'Login failed. Please verify credentials.')
       };
-    } finally {
-      setLoading(false);
     }
   };
 
   const register = async (userData) => {
-    setLoading(true);
     try {
       const response = await authService.register(userData);
       if (response.success && response.data.user) {
@@ -55,10 +59,10 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Registration failed.'
+        message: error.response?.data?.message || (error.message === 'Network Error'
+          ? 'Cannot reach the server. Please try again.'
+          : 'Registration failed.')
       };
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -66,10 +70,11 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       await authService.logout();
-      setUser(null);
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      localStorage.removeItem('campus_recover_token');
+      setUser(null);
       setLoading(false);
     }
   };

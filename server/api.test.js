@@ -17,12 +17,12 @@ describe('CampusRecover API Integration Tests', () => {
   beforeAll(async () => {
     // Connect to database and clear test entries
     // Since we use the same connection as server.js, just make sure we clear test accounts
-    await User.deleteMany({ email: { $in: ['testowner@college.edu', 'testfinder@college.edu', 'testother@college.edu'] } });
+    await User.deleteMany({ email: { $in: ['testowner@college.edu', 'testfinder@college.edu', 'testother@college.edu', 'paddeduser@college.edu'] } });
   });
 
   afterAll(async () => {
     // Clean up test data
-    await User.deleteMany({ email: { $in: ['testowner@college.edu', 'testfinder@college.edu', 'testother@college.edu'] } });
+    await User.deleteMany({ email: { $in: ['testowner@college.edu', 'testfinder@college.edu', 'testother@college.edu', 'paddeduser@college.edu'] } });
     if (testItemMongoId) {
       await Item.deleteOne({ _id: testItemMongoId });
       await Report.deleteOne({ item: testItemMongoId });
@@ -89,6 +89,26 @@ describe('CampusRecover API Integration Tests', () => {
 
       expect(res.statusCode).toBe(201);
       otherToken = res.headers['set-cookie'][0].split(';')[0].split('=')[1];
+    });
+
+    it('should register when email and student ID have surrounding whitespace', async () => {
+      const res = await request(app)
+        .post('/api/auth/register')
+        .send({
+          name: '  Padded User  ',
+          studentId: '  STU9904  ',
+          email: '  paddeduser@college.edu  ',
+          phone: '9876543213',
+          department: 'Physics',
+          year: 1,
+          password: 'Password123',
+          confirmPassword: 'Password123'
+        });
+
+      expect(res.statusCode).toBe(201);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.user.email).toBe('paddeduser@college.edu');
+      expect(res.body.data.user.studentId).toBe('STU9904');
     });
 
     it('should log in using student ID', async () => {

@@ -47,16 +47,21 @@ const Signup = () => {
     }
 
     setLoading(true);
-    const result = await register({
-      name: formData.name,
-      studentId: formData.studentId,
-      email: formData.email,
-      phone: formData.phone,
-      department: formData.department,
-      year: Number(formData.year) || undefined,
+    const payload = {
+      name: formData.name.trim(),
+      studentId: formData.studentId.trim(),
+      email: formData.email.trim(),
+      phone: formData.phone.trim(),
+      department: formData.department.trim(),
       password: formData.password,
       confirmPassword: formData.confirmPassword
-    });
+    };
+    const parsedYear = parseInt(formData.year, 10);
+    if (Number.isInteger(parsedYear) && parsedYear >= 1) {
+      payload.year = parsedYear;
+    }
+
+    const result = await register(payload);
     setLoading(false);
 
     if (result.success) {

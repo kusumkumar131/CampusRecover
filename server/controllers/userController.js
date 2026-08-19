@@ -28,7 +28,12 @@ exports.updateProfile = async (req, res, next) => {
     if (name) fieldsToUpdate.name = name;
     if (phone !== undefined) fieldsToUpdate.phone = phone;
     if (department !== undefined) fieldsToUpdate.department = department;
-    if (year !== undefined) fieldsToUpdate.year = year;
+    if (year !== undefined && year !== '') {
+      const parsedYear = parseInt(year, 10);
+      if (Number.isInteger(parsedYear) && parsedYear >= 1) {
+        fieldsToUpdate.year = parsedYear;
+      }
+    }
     if (profileImage !== undefined) fieldsToUpdate.profileImage = profileImage;
 
     const user = await User.findByIdAndUpdate(

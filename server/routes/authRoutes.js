@@ -9,9 +9,9 @@ const router = express.Router();
 router.post(
   '/register',
   [
-    body('name', 'Full Name is required').notEmpty().trim(),
-    body('studentId', 'Student ID / Roll Number is required').notEmpty().trim(),
-    body('email', 'Please include a valid email address').isEmail(),
+    body('name', 'Full Name is required').trim().notEmpty(),
+    body('studentId', 'Student ID / Roll Number is required').trim().notEmpty(),
+    body('email', 'Please include a valid email address').trim().isEmail(),
     body('password', 'Password must be at least 6 characters long').isLength({ min: 6 }),
     body('confirmPassword').optional().custom((value, { req }) => {
       if (value && value !== req.body.password) {
@@ -27,7 +27,7 @@ router.post(
 router.post(
   '/login',
   [
-    body('emailOrStudentId', 'Email or Student ID is required').notEmpty().trim(),
+    body('emailOrStudentId', 'Email or Student ID is required').trim().notEmpty(),
     body('password', 'Password is required').notEmpty(),
     validateFields
   ],

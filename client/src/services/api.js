@@ -29,9 +29,20 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('campus_recover_token');
-      console.warn('Session expired or unauthorized request made.');
+    if (error.response?.status === 401) {
+      const headers = error.config?.headers;
+      const sentAuth = headers?.Authorization || headers?.authorization || headers?.get?.('Authorization');
+      const currentToken = localStorage.getItem('campus_recover_token');
+      const sentToken = typeof sentAuth === 'string' && sentAuth.startsWith('Bearer ')
+        ? sentAuth.slice(7)
+        : null;
+
+      // Only drop the stored token if THIS request used that same token.
+      // A slow /auth/me 401 must not wipe a token just issued by register/login.
+      if (sentToken && currentToken && sentToken === currentToken) {
+        localStorage.removeItem('campus_recover_token');
+        console.warn('Session expired or unauthorized request made.');
+      }
     }
     return Promise.reject(error);
   }
