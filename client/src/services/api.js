@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://campusrecover-nbbw.onrender.com/api',
   withCredentials: true, // Crucial for HTTP-only cookies
   headers: {
     'Content-Type': 'application/json'
