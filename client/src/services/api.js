@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://campusrecover-nbbw.onrender.com/api',
+  timeout: 30000, // 30s timeout to allow free-tier Render server wake-up
   withCredentials: true, // Crucial for HTTP-only cookies
   headers: {
     'Content-Type': 'application/json'
