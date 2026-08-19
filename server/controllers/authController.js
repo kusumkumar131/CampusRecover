@@ -52,8 +52,18 @@ exports.register = async (req, res, next) => {
   try {
     const { name, studentId, email, phone, department, year, password } = req.body;
 
+    if (!name || !studentId || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide all required fields: name, student ID, email, and password.'
+      });
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanStudentId = studentId.trim();
+
     // Check if email already exists
-    const emailExists = await User.findOne({ email });
+    const emailExists = await User.findOne({ email: cleanEmail });
     if (emailExists) {
       return res.status(400).json({
         success: false,
@@ -62,11 +72,11 @@ exports.register = async (req, res, next) => {
     }
 
     // Check if student ID already exists
-    const idExists = await User.findOne({ studentId });
+    const idExists = await User.findOne({ studentId: cleanStudentId });
     if (idExists) {
       return res.status(400).json({
         success: false,
-        message: 'A user with this Student ID is already registered.'
+        message: 'A user with this Student ID / Roll Number is already registered.'
       });
     }
 
@@ -76,17 +86,30 @@ exports.register = async (req, res, next) => {
 
     // Create User
     const user = await User.create({
-      name,
-      studentId,
-      email,
-      phone,
-      department,
-      year,
+      name: name.trim(),
+      studentId: cleanStudentId,
+      email: cleanEmail,
+      phone: phone ? phone.trim() : '',
+      department: department ? department.trim() : '',
+      year: year || undefined,
       passwordHash
     });
 
     sendTokenResponse(user, 201, res, 'User registered successfully');
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(val => val.message);
+      return res.status(400).json({
+        success: false,
+        message: messages.join('. ')
+      });
+    }
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email or Student ID is already registered.'
+      });
+    }
     next(error);
   }
 };
