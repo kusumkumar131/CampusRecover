@@ -84,6 +84,8 @@ exports.register = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
+    const safeYear = parseInt(year, 10) || 1;
+
     // Create User
     const user = await User.create({
       name: name.trim(),
@@ -91,7 +93,7 @@ exports.register = async (req, res, next) => {
       email: cleanEmail,
       phone: phone ? phone.trim() : '',
       department: department ? department.trim() : '',
-      year: year ? String(year) : '',
+      year: safeYear,
       passwordHash
     });
 
